@@ -71,17 +71,28 @@ def checkQueues (ssh, usernames):
 	return returnList
 
 def takeBackup (ssh, jobs, userDirName):
-	backupLocations = {"T286": "/home/raghuram/Documents/HPCE_backups/T286/hbondLifetime/", "T298": "/home/raghuram/Documents/HPCE_backups/T298/hbondLifetime/", "T310": "/home/raghuram/Documents/HPCE_backups/T310/hbondLifetime/", "T323": "/home/raghuram/Documents/HPCE_backups/T323/hbondLifetime/", "T335": "/home/raghuram/Documents/HPCE_backups/T335/hbondLifetime/", "T348": "/home/raghuram/Documents/HPCE_backups/T348/hbondLifetime/"}
+	backupLocations = {
+	"T286": "/home/raghuram/Documents/HPCE_backups/T286/hbondLifetime2/", 
+	"T298": "/home/raghuram/Documents/HPCE_backups/T298/hbondLifetime2/", 
+	"T310": "/home/raghuram/Documents/HPCE_backups/T310/hbondLifetime2/", 
+	"T323": "/home/raghuram/Documents/HPCE_backups/T323/hbondLifetime2/", 
+	"T335": "/home/raghuram/Documents/HPCE_backups/T335/hbondLifetime2/", 
+	"T348": "/home/raghuram/Documents/HPCE_backups/T348/hbondLifetime2/"
+	}
 
 	for temperature in backupLocations:
 		if temperature in jobs:
 			targetLocation = backupLocations[temperature]
 			print ("Target location set as: {}".format (targetLocation))
 
-	print ("Copying files from HPCE")
-	os.system (" sshpass -p \"swathi@123\" rsync --remove-source-files --progress -avz {}@10.24.6.200:{}/dump_nvt.lammpstrj {}/dump_new.lammpstrj".format (userDirName, jobs, targetLocation))
-	print ("Appending temp file to main traj file...")
-	os.system ("cat {}/dump_new.lammpstrj >> {}/dump_nvt.lammpstrj &".format (targetLocation))
+	try:
+		print ("Copying files from HPCE")
+		os.system (" sshpass -p \"swathi@123\" rsync --remove-source-files --progress -avz {}@10.24.6.200:{}/dump_nvt.lammpstrj {}/dump_new.lammpstrj".format (userDirName, jobs, targetLocation))
+		print ("Appending temp file to main traj file...")
+		os.system ("cat {}/dump_new.lammpstrj >> {}/dump_nvt.lammpstrj &".format (targetLocation, targetLocation))
+		print ("cat {}/dump_new.lammpstrj >> {}/dump_nvt.lammpstrj &".format (targetLocation, targetLocation))
+	except:
+		print ("File not found in HPCE...")
 
 def checkOccupiedSpace (ssh, userDirName):
 	ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command ("cd; cd ../; du {}/ -sh".format (userDirName))
